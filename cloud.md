@@ -34,13 +34,13 @@
 
 #### Traditional
 
-![](images/cloud_virt_tradional_setup.png) <br>
-![](images/cloud_virt_tradional_setup_problem.png)
+![](images/cloud/cloud_virt_tradional_setup.png) <br>
+![](images/cloud/cloud_virt_tradional_setup_problem.png)
 
 #### Virtual servers concept
 
-![](images/cloud_virt_virutal_servers_setup.png)<br>
-![](images/cloud_virt_virutal_servers_concept.png)
+![](images/cloud/cloud_virt_virutal_servers_setup.png)<br>
+![](images/cloud/cloud_virt_virutal_servers_concept.png)
 
 - Benefits of using VMs:
 
@@ -53,11 +53,11 @@
 - A pioneer in this domain is VMWare
 
 - Live migration provisioning
-  ![](images/cloud_virt_vm_migration.png)<br>
+  ![](images/cloud/cloud_virt_vm_migration.png)<br>
 - Load balancing
-  ![](images/cloud_virt_load_balancing.png)<br>
+  ![](images/cloud/cloud_virt_load_balancing.png)<br>
 - Consolidation
-  ![](images/cloud_virt_consolidation.png)<br>
+  ![](images/cloud/cloud_virt_consolidation.png)<br>
 
 ### Importance of Virtualization in Cloud computing:
 
@@ -92,13 +92,13 @@ Intel:
 
 - CPU provide a range of protection levels (rings) in which code can execute. Ring 0 has the highest privilege level
 
-![](images/cloud_virt_privliege_rings.png)
+![](images/cloud/cloud_virt_privliege_rings.png)
 
 #### Full virtualization
 
 - almost complete simulation of the actual hardware to allow software (guest OS) to run unmodified <br>
-  ![](images/cloud_virt_full_virtualization.png) <br>
-  ![](images/cloud_virt_full_virtualization_2.png) <br>
+  ![](images/cloud/cloud_virt_full_virtualization.png) <br>
+  ![](images/cloud/cloud_virt_full_virtualization_2.png) <br>
 
 #### Paravirtualization
 
@@ -107,8 +107,8 @@ Intel:
   system. Guest programs need to be specifically modified to run in this
   environment. Faster than full virtualization concept.
 
-![](images/cloud_virt_paravirtualization.png)
-![](images/cloud_virt_paravirtualization_2.png)
+![](images/cloud/cloud_virt_paravirtualization.png)
+![](images/cloud/cloud_virt_paravirtualization_2.png)
 
 ### Hardware assisted virtualization
 
@@ -116,7 +116,7 @@ Intel:
   employing specially designed CPUs and hardware components that help
   improve the performance of a guest environment.
 
-![](images/cloud_virt_hardware_assisted_virtualization.png)
+![](images/cloud/cloud_virt_hardware_assisted_virtualization.png)
 
 ### Hypervisor
 
@@ -136,7 +136,7 @@ Types of hypervisors:
   - also referred as `native`, `bare metal` or `embedded` hypervisors
   - professional hypervisors, those systems work only with virtual machines
     <br>
-    ![](images/cloud_virt_hypervisor_t1.png)
+    ![](images/cloud/cloud_virt_hypervisor_t1.png)
 
 - Type 2:
   - sits on top a operating system and relies heavily on it
@@ -145,14 +145,14 @@ Types of hypervisors:
   - they depend on OS, so they are not in full control of the end user's machine
   - for the common usage (for the general audience); you can install your apps on the host OS besides having VMs on the host OS
     <br>
-    ![](images/cloud_virt_hypervisor_t2.png)
+    ![](images/cloud/cloud_virt_hypervisor_t2.png)
 
 #### KVM hypervisor
 
 - KVM (Kernel-based Virtual Machine) - virtualization infrastructure for the Linux kernel which turns it into a hypervisor and allows its host OS to act as a Type 1 hypervisor.
 - However, as Linux distribution is an operating system in its own right, one can argue that KVM is Type 2 hypervisor
 - Linux 2.6.20 (February 2007) was the first to include KVM <br>
-  ![](images/cloud_virt_kvm_1.png)
+  ![](images/cloud/cloud_virt_kvm_1.png)
 
 ##### KVM network configuration
 
@@ -162,7 +162,7 @@ Types of hypervisors:
   eth0.2 - virtual interface that use untagged frame from VLAN 2
   eth0.3 - virtual interface that use untagged frame from VLAN 3
 
-  ![](images/cloud_virt_kvm_network.png)
+  ![](images/cloud/cloud_virt_kvm_network.png)
 
 Next:
 
