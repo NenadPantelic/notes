@@ -158,9 +158,9 @@ Types of hypervisors:
 
 - We have eth0 interface in our host and it needs to use tagged tagged network traffic for VLAN ID 1,2,3.
   eth0 - regular network interface
-  eth0.1 - virtual interface that use untagged frame from VLAN 1
-  eth0.2 - virtual interface that use untagged frame from VLAN 2
-  eth0.3 - virtual interface that use untagged frame from VLAN 3
+  eth0.1 - virtual interface that use untagged frame from VLAN 1<br>
+  eth0.2 - virtual interface that use untagged frame from VLAN 2 <br>
+  eth0.3 - virtual interface that use untagged frame from VLAN 3 <br>
 
   ![](images/cloud/cloud_virt_kvm_network.png)
 
