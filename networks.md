@@ -1,3 +1,30 @@
+# 1. OSI model
+
+- Open Systems Interconnection (OSI) is the conceptual framework that divides network communication functions into seven layers and represents the backbone of the understanding of the modern Internet
+
+![](images/networks/osi_1.png)
+![](images/networks/osi_2.png)
+
+- mobile phone is trying to get the HTML page that sits on 10.0.0.3:80 (HTTP port)
+
+- HTTP is a textual protocol (sends a stream of bytes); L7
+- If we are using HTTPS/TLS communication, then the presentation layer (L6) encrypts the data
+- Layer 5 (session layer) tags the data with the session id (for an example a computer can have 7 TCP connections to some server, so every of these sessions must be labeled)
+- Layer 4 (transport layer) sees the bunch of bits and it breaks it down to a smaller manageable segments and every segment
+  is tagged with some additional details like port number (both source and destination ports)
+- Layer 3 (network layer) - this layer does not know about ports, it attaches two things - a source IP and the destation IP and it makes a packet
+- Layer 2 (data link layer) - packets are broken further (they can be broken without the following some boundaries - it can be in the middle, beginning etc.) + it adds the MAC addresses (source and target) and with makes frames
+- when we don't know the MAC address, we use ARP protocol (address resolution protocol) which converts the IP address to MAC address (it is cached)
+- L1 (physical layer) works with bits that are converted into physical signals like electricity and light; physical layer does not know where that signal (bunch of bites) goes
+  ![](images/networks/osi_3.png)
+
+- Every computer in that network gets the same sequence of bits, but on the data link layer (network card) will check the destination MAC and hosts that should not receive that frame and discards if it's not the destination host for that frame
+  ![](images/networks/osi_4.png)
+
+-> that's why the public WiFi is not adviced, since everyone in that network is getting the same data (if it is not encrypted, bad luck...)
+
+- when the target host receives the frame, it starts passing it upstream and removing the data added by every layer along the way
+
 # 1. HSTS
 
 ### Naked HTTP problem

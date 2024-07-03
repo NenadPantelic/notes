@@ -141,3 +141,145 @@ Python is just a language specification implemented in a few ways:
 - PyPy - written in Python itself and can compile to a huge variety of "back-end" forms including "just-in-time" generated machine language
 
 CPython is intended to have as fast, and as light compilation as possible saving the time and memory consumption. It skips some checks and optimizations (Java and .NET implementatios take longer, since they do some of those steps).
+
+# Reference counting in Python
+
+- programming languages usually use garbage collector (GC) to prevent the memory exhaustion
+- garbage collector is a background process that periodically identifies all inactive objects and reclaim the memory they are holding
+- in Python's case, it uses two memory management techniques:
+  - garbage collection
+  - reference counting (the principal one)
+- since the reference counting might leave some objects behind, garbage collection is used as well
+
+- reference: when a new object is created and assigned to a variable, that variable represents a reference pointing to that object in memory
+
+### How reference counting work?
+
+- each object in CPython keeps a count of references pointing to it
+- when we create an object, it commences with a reference count of one
+  ![](images/python/ref_counting.png)
+- whenever we assign that object to a new variable, or pass it to a function as a parameter, the object's reference count increases by one
+  ![](images/python/ref_counting_2.png)
+- as each variable exists within its scope, when it exits its scope, the object reference count is decreased by one - when that count reaches 0, the object is freed
+- if you want to see the reference count of an object, there is a function `sys.getrefcount()` - be aware that this function returns the actual count + 1, since we are passing an object to this function which increases the count
+
+```python
+>>> import sys
+>>> s = "hello, world"
+>>> sys.getrefcount(s)
+2
+>>> s2 = s
+>>> sys.getrefcount(s)
+3
+```
+
+## How CPython represents objects in memory
+
+- As CPython is implemented in C, Python objects are defined as C structs. Each object's definition begins with a header called `PyObject`. This header keeps the data about object, including its reference count and object type. This is the definition of `PyObject` as `_object` struct:
+
+```c
+struct _object {
+  Py_ssize_t ob_refcnt;
+  PyTypeObject *ob_type;
+};
+```
+
+- `ob_refcnt`` field stores the reference count of the object
+- ` ob_type`` field stores the type of the object. The  `PyTypeObject`` itself is a struct defined in `Include/cpython/object.h``. It stores a ton of other information apart from the type, such as basic size of the type, and pointers to type specific functions.
+
+- this `_object` struct is aliased (typedef) to `PyObject` in `Includes/pytypedefs.h`.
+
+### How reference counts are modified?
+
+- There are functions defined in `Includes/object.h`
+- increase - `Py_INCREF`
+- decrease - `Py_DECREF`
+
+- a simplified version of `Py_INCREF` function
+
+```c
+static inline void Py_INCREF(PyObject *op) {
+  if (_Py_IsImmortal(op)) {
+    return;
+  }
+
+  op -> ob_refcnt++;
+}
+```
+
+- `_Py_IsImmortal` - checks if the object is immortalized
+- immortalization has been introduced in Python 3.12 to improve performance; it ensures that immutable objects such as None, True, False, ... are truly immutable at runtime and their reference counts don't change.
+
+- a simplified version of `Py_DECREF` function
+
+```c
+static inline void Py_DECREF(PyObject *op) {
+  if (_Py_IsImmortal(op)) {
+    return;
+  }
+
+  if (--op->ob_refcnt == 0) {
+    _Py_Dealloc(op);
+  }
+}
+```
+
+- decrement the reference count only if it is not an immortal object
+- if the reference count drops to 0, deallocate that object
+
+## Implementation of the Integer (int) object in CPython
+
+- the actual type of an int type in Python is long -> `_PyLongValue` and `PyLongObject`
+- ` Include/cpython/longintrepr.h`
+
+```c
+
+typedef struct _PyLongValue {
+  uintptr_t lv_tag; /*number of digits, sign and flags*/
+  digit ob_digit[1];
+} _PyLongValue;
+
+struct _longobject {
+  PyObject_HEAD
+  _PyLongValue long_value;
+};
+
+// _longobject is typedefd as PyLongObject, so PyLongObject is used in other places
+```
+
+- `Objects/longobject.c`: the following picture shows the definition of the `_PyLong_new function`, which is responsible for creating and initializing a new PyLong object.
+  ![](images/python/ref_counting_new_int.png)
+
+## The Role of Reference Counting in CPython's Virtual Machine
+
+> Bytecode Virtual Machine: CPython compiles the Python code to a bytecode representation which is then executed by a stack based virtual machine (VM). In a stack VM, instructions are executed in terms of the push and pop operations on the stack.
+
+#### Python bytecode
+
+![](images/python/bytecode_add.png)
+
+- [dis](https://docs.python.org/3/library/dis.html) module disasembles the given code and returns bytecode
+  - `LOAD_FAST` loads the variables (arguments) onto the stack - an array is used to store local variables and thus only indexes of that array are passed (0 and 1)
+  - now, a and b are the top values on the stack. Now it comes `BINARY_OP` instruction - it popps the top 2 values from the stack, adds them (+ arg of the instruction) and returns the result onto the stack
+  - `RETURN_VALUE` pops the value from the stack and returns the result
+
+![](images/python/load_fast.png)
+
+- The `GETLOCAL(oparg)` call looks up the variable from the locals array by using the index passed as the argument to `LOAD_FAST`
+- `Py_INCREF` increments the reference count of the object because the object has been assigned to a variable (here, it is assigned to the function parameter)
+- The line: `stack_pointer[-1] = value`, pushes that object onto the stack.
+
+![](images/python/binary_op.png)
+
+- the first two lines are popping the top two values from the stack as the lhs and rhs of the binary operation to be executed.
+- The line `binary_ops[oparg]` looks up the function which should be called for the given binary operation. lhs and rhs are passed as arguments to that function and the result is stored in res.
+- After the binary operation, we are done with the two variables and they will go out of scope. Therefore, their reference counts are decremented using `Py_DECREF`. At this point, they might get deallocated if their reference count drops to 0.
+- Finally, the result of the binary operation is pushed onto the stack using `stack_pointer[-1] = res`.
+
+## The limits of reference counting and the garbage collector
+
+- reference counting is a cheap way of managing reference counting and memory managemet
+- the limit of the reference counting:
+  - what if two objects have a cyclic dependency (their count will never drop to zero since they will hold a reference to each other)
+    ![](images/python/cyclic_reference.png)
+- Python uses GC to detect such cycles and release the memory used by variables forming cyclic dependency

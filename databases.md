@@ -168,3 +168,12 @@ But if you were able to issue a COMMIT and the WAL entry for a transaction commi
 - As the database starts back up, the file is out of date we can’t just pull it on memory and have clients read them, the WAL is the source of truth, we need to REDO the changes in the WAL back on the data files, and during that process nothing is allowed to read (otherwise we get corruption). The database startup time slows down the more out of sync the data files are from the WAL (many writes has happened but the data files were not updated for a long time).
 
 - Can we control how data pages are flushed to disk? And the answer is yes, this is called as **checkpointing**, where a new WAL record is created called checkpoint record write after the entire data pages in memory are flushed to disk. This is a very delicate process, too much checkpointing sure makes start up faster, but it indeeds takes a toll on your I/O as checkpointing is IO heavy operation as we mentioned before data pages are very large.
+
+# 5. ACID
+
+- Atomicity, Consistency, Isolation, Durability
+
+## 5.1. Transaction
+
+- a collection of queries
+- one unit of work (all or nothing)
